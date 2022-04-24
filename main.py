@@ -1,7 +1,6 @@
 #!/bin/python3
 from email import message
 import json
-from xml.dom.minidom import Document
 import vk_api
 import asyncio
 import re
