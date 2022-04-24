@@ -241,7 +241,7 @@ async def start_sign_cb(event):
 
 def sign_local_dataset(filename, text):
     # функция для записи новой подписи к данной картинке в датасете
-    f = open(f"{PATH}/images/another_wordlist.txt").read().split("\n")
+    f = open(f"{PATH}/images/another_wordlist.txt", encoding="cp1251").read().split("\n")
     string_exists = False
     for index, string in enumerate(f):
         if string.startswith(filename):
@@ -251,7 +251,7 @@ def sign_local_dataset(filename, text):
     if not string_exists:
         f += [f"{filename}\t{text}"]
     f = "\n".join(f)
-    new_f = open(f"{PATH}/images/another_wordlist.txt", 'w')
+    new_f = open(f"{PATH}/images/another_wordlist.txt", 'w', encoding="cp1251")
     new_f.write(f)
     new_f.close()
 
@@ -260,9 +260,9 @@ def get_current_sign(filename, source="another"):
     # выводит текущую подпись картинки. Источник - default (VK-совский), another (размеченный нами), или custom - ссылка на альбом VK.
     print(filename, "get_curerent_sign")
     if source == "another":
-        f = open(f"{PATH}/images/another_wordlist.txt").read().split("\n")
+        f = open(f"{PATH}/images/another_wordlist.txt", encoding="cp1251").read().split("\n")
     if source == "default":
-        f = open(f"{PATH}/images/words.txt").read().split("\n")
+        f = open(f"{PATH}/images/words.txt", encoding="cp1251").read().split("\n")
     for index, string in enumerate(f):
         if string.startswith(filename):
             return f[index].split("\t")[1]
@@ -991,13 +991,15 @@ async def view_results_cb(event):
 async def view_games_cb(event):
     games = database.find_document(database.teams, {}, True)
     result = ""
+    _games = False
     for game in games:
-        if game["personal"]: return
+        if game["personal"]: continue
+        _games = True
         # одиночные игры скрываем
         res = f"Игра {game['invite']} | {len(game['users'])} человек | {'мультиплеер' if game['mode'] == 'multiplayer' else 'с ведущим'}\n" 
         result += res
     result += "Чтобы присоединиться к команде, напишите \"Присоединиться к <код>\", например \"Присоединиться к 1234\"."
-    if not games:
+    if not _games:
         result = "Нет открытых игр. Создайте свою командой \"Создать команду <имя>\"!"
     vk.messages.send(peer_id=event.message["peer_id"], message=result, random_id=0)
         
